@@ -1,0 +1,1343 @@
+Option Explicit
+Private Hooks As Collection
+Private ListHook As cFOListEvents
+Private CurrentID As String
+Private CurrentVersion As String
+Private ViewName As String
+Private Rows As Object
+Private InCompose As Boolean
+Private SourceMail As Outlook.MailItem
+Private Sequence() As String
+Private StepIndex As Long
+Private StepCount As Long
+Private UnlinkEntry As String
+Private UnlinkStore As String
+Private Appearance As Object
+Private Const RELATED_MAX_FOLDERS As Long = 200
+Private Const RELATED_MAX_MESSAGES As Long = 20000
+Private Const RELATED_MAX_CANDIDATES As Long = 100
+
+Private Sub UserForm_Initialize()
+    Me.Caption = "Follow-up Organizer"
+    Me.Width = 790
+    Me.Height = 640
+    Set Hooks = New Collection
+    Nav "Add", "Add Follow-up", 12, 105
+    Nav "Today", "Today", 122, 65
+    Nav "Awaiting Reply", "Awaiting Reply", 192, 100
+    Nav "Review Replies", "Review Replies", 297, 100
+    Nav "Closed", "Closed", 402, 65
+    Nav "Settings", "Settings", 472, 70
+    Nav "Important", "Important", 547, 88
+    Nav "Stop", "STOP AUTOMATION", 640, 120
+    BuildDashboard
+    BuildEditor
+    BuildSettings
+    BuildSequence
+    BuildUnlink
+    BuildAppearance
+End Sub
+
+Private Function Control(ByVal kind As String, ByVal name As String, ByVal panel As String, ByVal x As Single, ByVal y As Single, ByVal w As Single, ByVal h As Single) As Object
+    Dim c As Object
+    Set c = Me.Controls.Add("Forms." & kind & ".1", name, True)
+    c.Left = x: c.Top = y: c.Width = w: c.Height = h: c.Tag = panel
+    Set Control = c
+End Function
+
+Private Sub Label(ByVal name As String, ByVal caption As String, ByVal panel As String, ByVal x As Single, ByVal y As Single, ByVal w As Single)
+    Dim c As Object
+    Set c = Control("Label", name, panel, x, y, w, 18)
+    c.Caption = caption
+End Sub
+
+Private Sub Button(ByVal action As String, ByVal caption As String, ByVal panel As String, ByVal x As Single, ByVal y As Single, ByVal w As Single)
+    Dim c As Object, hook As cFOButton
+    Set c = Control("CommandButton", "b" & CStr(Me.Controls.Count), panel, x, y, w, 25)
+    c.Caption = caption
+    Set hook = New cFOButton
+    Set hook.Button = c: Set hook.Owner = Me: hook.ActionName = action
+    Hooks.Add hook
+End Sub
+
+Private Sub Nav(ByVal action As String, ByVal caption As String, ByVal x As Single, ByVal w As Single)
+    Button action, caption, "nav", x, 8, w
+End Sub
+
+Private Sub TextField(ByVal name As String, ByVal caption As String, ByVal panel As String, ByVal x As Single, ByVal y As Single, ByVal w As Single)
+    Label "l" & name, caption, panel, x, y, w
+    Dim c As Object
+    Set c = Control("TextBox", name, panel, x, y + 17, w, 22)
+End Sub
+
+Private Sub Combo(ByVal name As String, ByVal caption As String, ByVal x As Single, ByVal y As Single, ByVal w As Single, ByVal values As String)
+    Dim c As Object, v As Variant
+    Label "l" & name, caption, "edit", x, y, w
+    Set c = Control("ComboBox", name, "edit", x, y + 17, w, 22)
+    c.Style = fmStyleDropDownList
+    For Each v In Split(values, "|"): c.AddItem CStr(v): Next v
+    c.ListIndex = 0
+End Sub
+
+Private Sub DateFields(ByVal key As String, ByVal title As String, ByVal x As Single, ByVal y As Single)
+    Dim years As String, months As String, days As String, i As Long
+    For i = Year(Date) - 10 To Year(Date) + 10
+        If years <> "" Then years = years & "|"
+        years = years & CStr(i)
+    Next i
+    For i = 1 To 12
+        If months <> "" Then months = months & "|"
+        months = months & Format$(i, "00")
+    Next i
+    For i = 1 To 31
+        If days <> "" Then days = days & "|"
+        days = days & Format$(i, "00")
+    Next i
+    Combo key & "Y", title & " year", x, y, 95, years
+    Combo key & "M", "Month", x + 100, y, 65, months
+    Combo key & "D", "Day", x + 170, y, 65, days
+End Sub
+
+Private Sub BuildEditor()
+    TextField "subject", "Subject", "edit", 15, 47, 620
+    Button "Contacts", "Outlook Contacts", "edit", 645, 64, 115
+    TextField "to", "To: SMTP addresses separated by semicolons", "edit", 15, 94, 365
+    TextField "cc", "CC (optional)", "edit", 395, 94, 365
+    Dim accounts As String, a As Outlook.Account
+    For Each a In Application.Session.Accounts
+        If a.SmtpAddress <> "" Then
+            If accounts <> "" Then accounts = accounts & "|"
+            accounts = accounts & a.SmtpAddress
+        End If
+    Next a
+    If accounts = "" Then accounts = "Choose a configured SMTP account"
+    Combo "account", "Send from", 15, 141, 245, accounts
+    Combo "priority", "Priority", 270, 141, 110, "Normal|High"
+    Combo "unit", "Repeat unit", 395, 141, 140, "working days|hours|weeks|months"
+    Combo "every", "Every", 545, 141, 80, "1|2|3|4|5|6|7|8|10|12|14|15|20|24|30|60|90"
+    Combo "maximum", "Max reminders", 635, 141, 125, "5|1|2|3|4|6|7|8|9|10|15|20|25|50|100"
+    DateFields "next", "First / next", 15, 188
+    Dim hours As String, minutes As String, i As Long
+    For i = 0 To 23
+        If hours <> "" Then hours = hours & "|"
+        hours = hours & Format$(i, "00")
+    Next i
+    For i = 0 To 59
+        If minutes <> "" Then minutes = minutes & "|"
+        minutes = minutes & Format$(i, "00")
+    Next i
+    Combo "hour", "Hour (IST)", 265, 188, 60, hours
+    Combo "minute", "Minute", 330, 188, 60, minutes
+    Combo "mode", "Reminder mode", 405, 188, 120, "Draft|Auto"
+    Button "Daily", "Daily", "edit", 535, 205, 65
+    Button "Urgent", "Urgent", "edit", 605, 205, 70
+    Button "Weekly", "Weekly", "edit", 680, 205, 80
+    DateFields "due", "Deadline", 15, 235
+    Combo "use_due", "Use deadline?", 265, 235, 125, "No|Yes"
+    DateFields "stopdate", "Stop date", 405, 235
+    Combo "use_stop", "Use stop date?", 645, 235, 115, "No|Yes"
+    Label "lmessage", "First / repeating reminder message", "edit", 15, 286, 365
+    Label "llater", "Second and later message (blank = repeat first)", "edit", 395, 286, 365
+    Dim c As Object
+    Set c = Control("TextBox", "message", "edit", 15, 305, 365, 107)
+    c.MultiLine = True: c.EnterKeyBehavior = True: c.ScrollBars = fmScrollBarsVertical
+    Set c = Control("TextBox", "later_message", "edit", 395, 305, 365, 107)
+    c.MultiLine = True: c.EnterKeyBehavior = True: c.ScrollBars = fmScrollBarsVertical
+    TextField "note", "Private next action", "edit", 15, 423, 745
+    Button "Save", "Save Follow-up", "edit", 15, 482, 145
+    Button "CancelEdit", "Cancel", "edit", 170, 482, 90
+    Button "Sequence", "Message sequence", "edit", 275, 482, 145
+    Label "editHint", "Reply received = pause. Dates/times are IST.", "edit", 435, 484, 325
+End Sub
+
+Private Sub BuildSequence()
+    Label "stepTitle", "Reminder message", "sequence", 20, 60, 720
+    Dim c As Object
+    Set c = Control("TextBox", "stepBody", "sequence", 20, 90, 720, 315)
+    c.MultiLine = True: c.EnterKeyBehavior = True: c.ScrollBars = fmScrollBarsVertical
+    Button "StepPrevious", "Previous", "sequence", 20, 425, 110
+    Button "StepNext", "Next", "sequence", 140, 425, 110
+    Button "StepAdd", "Add message", "sequence", 260, 425, 125
+    Button "StepRemove", "Remove message", "sequence", 395, 425, 140
+    Button "StepDone", "Done", "sequence", 545, 425, 195
+    Label "stepHint", "After the last message, repeat it until the maximum reminder count or stop date.", "sequence", 20, 475, 720
+End Sub
+
+Private Sub ShowStep()
+    Me.Controls("stepTitle").Caption = "Reminder " & CStr(StepIndex + 1) & " of " & CStr(StepCount)
+    Me.Controls("stepBody").Value = Sequence(StepIndex)
+    Panel "sequence"
+End Sub
+
+Private Sub SequenceAction(ByVal action As String)
+    Dim parts As Variant, i As Long, later As String
+    If action = "Sequence" Then
+        StepCount = 1
+        If CStr(Me.Controls("later_message").Value) <> "" Then
+            parts = Split(Replace(CStr(Me.Controls("later_message").Value), vbCrLf, vbLf), vbLf & "---STEP---" & vbLf)
+            StepCount = UBound(parts) + 2
+        End If
+        ReDim Sequence(0 To StepCount - 1)
+        Sequence(0) = CStr(Me.Controls("message").Value)
+        If StepCount > 1 Then
+            For i = 1 To StepCount - 1: Sequence(i) = parts(i - 1): Next i
+        End If
+        StepIndex = 0
+        ShowStep
+        Exit Sub
+    End If
+    Sequence(StepIndex) = CStr(Me.Controls("stepBody").Value)
+    Select Case action
+        Case "StepPrevious": If StepIndex > 0 Then StepIndex = StepIndex - 1
+        Case "StepNext": If StepIndex < StepCount - 1 Then StepIndex = StepIndex + 1
+        Case "StepAdd"
+            If StepCount >= 100 Then Err.Raise vbObjectError + 2120, , "Maximum 100 messages."
+            StepCount = StepCount + 1
+            ReDim Preserve Sequence(0 To StepCount - 1)
+            Sequence(StepCount - 1) = Sequence(StepIndex)
+            StepIndex = StepCount - 1
+        Case "StepRemove"
+            If StepIndex = 0 Then Err.Raise vbObjectError + 2121, , "The first message is required."
+            For i = StepIndex To StepCount - 2: Sequence(i) = Sequence(i + 1): Next i
+            StepCount = StepCount - 1
+            ReDim Preserve Sequence(0 To StepCount - 1)
+            If StepIndex >= StepCount Then StepIndex = StepCount - 1
+        Case "StepDone"
+            For i = 0 To StepCount - 1
+                If Trim$(Sequence(i)) = "" Then Err.Raise vbObjectError + 2122, , "Each reminder message needs text."
+            Next i
+            Me.Controls("message").Value = Sequence(0)
+            For i = 1 To StepCount - 1
+                If i > 1 Then later = later & vbLf & "---STEP---" & vbLf
+                later = later & Sequence(i)
+            Next i
+            Me.Controls("later_message").Value = later
+            Panel "edit"
+            Exit Sub
+    End Select
+    ShowStep
+End Sub
+
+Private Sub BuildDashboard()
+    Label "status", "", "dash", 15, 72, 480
+    Dim c As Object
+    Button "CardOverdue", "Overdue", "dash", 15, 40, 110
+    Button "CardDue", "Due today", "dash", 130, 40, 105
+    Button "CardAwaiting", "Awaiting", "dash", 240, 40, 110
+    Button "CardReview", "Review", "dash", 355, 40, 100
+    Button "CardExceptions", "Exceptions", "dash", 460, 40, 125
+    Button "CardRemoved", "Removed", "dash", 590, 40, 170
+    Set c = Control("TextBox", "search", "dash", 505, 70, 175, 20)
+    Button "Filter", "Search", "dash", 685, 68, 75
+    Me.Controls("status").Height = 30
+    Label "columns", "Subject | Recipient | Status | Next (IST) | Last in Sent (IST) | Sent count | Send outcome", "dash", 15, 96, 745
+    Set c = Control("ListBox", "list", "dash", 15, 113, 745, 157)
+    Set ListHook = New cFOListEvents
+    Set ListHook.List = c: Set ListHook.Owner = Me
+    c.ColumnCount = 8: c.ColumnWidths = "0 pt;150 pt;110 pt;85 pt;85 pt;90 pt;50 pt;135 pt"
+    c.MultiSelect = fmMultiSelectExtended
+    Button "Details", "Details / History", "dash", 15, 280, 115
+    Button "Conversation", "Conversation", "dash", 137, 280, 105
+    Button "Open", "Open mail / draft", "dash", 249, 280, 118
+    Button "Edit", "Edit / Continue", "dash", 374, 280, 110
+    Button "Pause", "Pause selected", "dash", 491, 280, 110
+    Button "Close", "Close selected", "dash", 608, 280, 150
+    Button "Later", "Review later", "dash", 15, 313, 115
+    Button "Resolve", "Resolve occurrence", "dash", 137, 313, 145
+    Button "Link", "Link email", "dash", 290, 313, 85
+    Button "Unlink", "Unlink email", "dash", 382, 313, 90
+    Button "Remove", "Remove follow-up", "dash", 480, 313, 105
+    Button "Export", "Excel export", "dash", 592, 313, 78
+    Button "Import", "Excel import", "dash", 677, 313, 81
+    Button "SnoozeHour", "Snooze 1 hour", "dash", 15, 346, 120
+    Button "SnoozeTomorrow", "Snooze tomorrow", "dash", 142, 346, 130
+    Button "SnoozeWorkday", "Next working day", "dash", 279, 346, 140
+    Button "Health", "Engine health", "dash", 426, 346, 140
+    Button "Diagnostics", "Export diagnostics", "dash", 573, 346, 185
+    Button "Restore", "Restore selected", "dash", 15, 379, 140
+    Button "Purge", "Permanently purge", "dash", 162, 379, 150
+    Button "BackupNow", "Create verified backup", "dash", 319, 379, 190
+    Button "BackupCheck", "Verify latest backup", "dash", 516, 379, 190
+    Button "ImportantSave", "Save selected mail", "dash", 15, 412, 125
+    Button "ImportantEdit", "Edit bookmark", "dash", 147, 412, 105
+    Button "ImportantArchive", "Archive / restore", "dash", 259, 412, 100
+    Button "ImportantDelete", "Remove bookmark", "dash", 366, 412, 115
+    Button "ImportantRelink", "Relink selected", "dash", 488, 412, 110
+    Button "ImportantConvert", "Convert to follow-up", "dash", 605, 412, 153
+    Label "detailTitle", "Selected follow-up summary", "dash", 15, 447, 745
+    Set c = Control("TextBox", "detail", "dash", 15, 468, 745, 112)
+    c.MultiLine = True: c.Locked = True: c.ScrollBars = fmScrollBarsVertical
+    c.BackStyle = fmBackStyleTransparent
+    c.BorderStyle = fmBorderStyleNone
+    Me.Controls("detailTitle").BackStyle = fmBackStyleTransparent
+    Me.Controls("detailTitle").BorderStyle = fmBorderStyleNone
+    Me.Controls("detailTitle").Font.Bold = True
+End Sub
+
+Private Sub BuildSettings()
+    TextField "s_weekdays", "Working weekdays: Monday=0 ... Sunday=6, comma-separated", "settings", 20, 65, 720
+    TextField "s_start", "Working day starts (24-hour HH:MM)", "settings", 20, 115, 345
+    TextField "s_end", "Working day ends (24-hour HH:MM)", "settings", 395, 115, 345
+    TextField "s_morning", "Morning review (HH:MM)", "settings", 20, 165, 345
+    TextField "s_evening", "End-of-day review (HH:MM)", "settings", 395, 165, 345
+    TextField "s_holidays", "Holiday dates: YYYY-MM-DD separated by semicolons", "settings", 20, 215, 720
+    Dim c As Object
+    Set c = Control("CheckBox", "s_auto", "settings", 20, 270, 700, 25)
+    c.Caption = "Enable automatic sending for follow-ups explicitly set to Auto (after pilot tests)"
+    Set c = Control("CheckBox", "s_catchup", "settings", 20, 300, 700, 25)
+    c.Caption = "When Outlook reopens, send one overdue Auto follow-up within the catch-up window"
+    TextField "s_catchup_hours", "Catch-up window in hours (1 to 168)", "settings", 20, 330, 220
+    Button "SaveSettings", "Save preferences", "settings", 20, 385, 160
+    Button "Resume", "Review and resume", "settings", 190, 385, 180
+    Button "Folder", "Monitor another folder", "settings", 380, 385, 200
+    Button "Appearance", "Fonts / text colors", "settings", 20, 465, 180
+    Label "settingsHint", "Only one missed occurrence is sent; replies and uncertain/outstanding sends still block catch-up.", "settings", 20, 430, 720
+End Sub
+
+Private Sub Panel(ByVal name As String)
+    Dim c As Object
+    For Each c In Me.Controls
+        c.Visible = (c.Tag = name Or c.Tag = "nav")
+        If c.Tag = "nav" Then c.Enabled = (Not InCompose Or c.Caption = "STOP AUTOMATION")
+    Next c
+    If name = "dash" Or name = "edit" Then ApplyAppearance name
+End Sub
+
+Private Sub SetDate(ByVal key As String, ByVal value As Date)
+    Me.Controls(key & "Y").Value = CStr(Year(value))
+    Me.Controls(key & "M").Value = Format$(Month(value), "00")
+    Me.Controls(key & "D").Value = Format$(Day(value), "00")
+End Sub
+
+Private Function DateText(ByVal key As String) As String
+    Dim value As Date, y As Long, m As Long, d As Long
+    y = CLng(Me.Controls(key & "Y").Value): m = CLng(Me.Controls(key & "M").Value): d = CLng(Me.Controls(key & "D").Value)
+    value = DateSerial(y, m, d)
+    If Year(value) <> y Or Month(value) <> m Or Day(value) <> d Then Err.Raise vbObjectError + 2110, , "Choose a valid calendar date."
+    DateText = Format$(value, "yyyy-mm-dd")
+End Function
+
+Private Sub ResetEditor()
+    Dim openedAt As Date
+    openedAt = Now
+    CurrentID = "": CurrentVersion = ""
+    SetDate "next", DateAdd("d", 1, Date)
+    SetDate "due", DateAdd("d", 7, Date)
+    SetDate "stopdate", DateAdd("m", 1, Date)
+    Me.Controls("hour").Value = Format$(openedAt, "hh"): Me.Controls("minute").Value = Format$(openedAt, "nn")
+    Me.Controls("use_due").Value = "No": Me.Controls("use_stop").Value = "No"
+    Me.Controls("mode").Value = "Draft"
+    Me.Controls("unit").Value = "working days": Me.Controls("every").Value = "1"
+    Me.Controls("maximum").Value = "5": Me.Controls("priority").Value = "Normal"
+    Me.Controls("later_message").Value = "": Me.Controls("note").Value = "": Me.Controls("cc").Value = ""
+End Sub
+
+Public Sub EditMail()
+    ResetEditor
+    InCompose = FOPending
+    Set SourceMail = FOEditingMail
+    Me.Controls("subject").Value = SourceMail.Subject
+    If InCompose Or FOIsOwn(SourceMail) Then
+        Me.Controls("to").Value = FORecipientList(SourceMail)
+    Else
+        Me.Controls("to").Value = FOSMTP(SourceMail)
+    End If
+    Me.Controls("message").Value = "Dear team," & vbCrLf & "Please share an update on the email below." & vbCrLf & "Thank you."
+    Panel "edit"
+End Sub
+
+Public Sub ShowDashboard(ByVal view As String)
+    Dim row As Object, c As Object, status As String, include As Boolean, index As Long, query As String
+    ViewName = view
+    If view = "Important" Then
+        ShowImportant
+        Exit Sub
+    End If
+    Set Rows = FOCall("list", FOXML("include_removed", "1"))
+    Set c = Me.Controls("list")
+    query = LCase$(Trim$(CStr(Me.Controls("search").Value)))
+    c.Clear
+    c.ColumnCount = 8: c.ColumnWidths = "0 pt;150 pt;110 pt;85 pt;85 pt;90 pt;50 pt;135 pt"
+    Me.Controls("columns").Caption = "Subject | Recipient | Status | Next (IST) | Last in Sent (IST) | Sent count | Send outcome"
+    For Each row In Rows.SelectNodes("row")
+        status = FOValue(row, "status")
+        include = False
+        Select Case view
+            Case "Closed": include = (status = "Closed")
+            Case "Removed": include = (status = "Removed")
+            Case "Exceptions": include = (FOValue(row, "exception") = "1")
+            Case "Overdue": include = (FOValue(row, "overdue") = "1")
+            Case "Due Today": include = (FOValue(row, "due_today") = "1")
+            Case "Review Replies": include = (status = "Review")
+            Case "Awaiting Reply": include = (status = "Active" Or status = "Draft ready" Or status = "Paused" Or status = "Pending send")
+            Case Else: include = (status <> "Closed" And status <> "Removed")
+        End Select
+        If query <> "" Then include = include And (InStr(1, LCase$(FOValue(row, "subject") & " " & FOValue(row, "to")), query, vbBinaryCompare) > 0)
+        If include Then
+            c.AddItem FOValue(row, "id")
+            index = c.ListCount - 1
+            c.List(index, 1) = FOValue(row, "subject")
+            c.List(index, 2) = FOValue(row, "to")
+            c.List(index, 3) = status
+            c.List(index, 4) = FOValue(row, "next_local")
+            c.List(index, 5) = FOValue(row, "last_local")
+            c.List(index, 6) = FOValue(row, "submitted_count")
+            c.List(index, 7) = FOValue(row, "send_state")
+        End If
+    Next row
+    Me.Controls("status").Caption = view & " | " & CStr(c.ListCount) & " | " & FOValue(Rows, "engine") & " | " & FOValue(Rows, "blocked")
+    SetCardCaption "CardOverdue", "Overdue " & FOValue(Rows, "overdue")
+    SetCardCaption "CardDue", "Due today " & FOValue(Rows, "due_today")
+    SetCardCaption "CardAwaiting", "Awaiting " & FOValue(Rows, "awaiting")
+    SetCardCaption "CardReview", "Review " & FOValue(Rows, "review")
+    SetCardCaption "CardExceptions", "Exceptions " & FOValue(Rows, "exceptions")
+    SetCardCaption "CardRemoved", "Removed " & FOValue(Rows, "removed")
+    SetFollowupActions True
+    SetActionEnabled "Restore", (view = "Removed")
+    SetActionEnabled "Purge", (view = "Removed")
+    SetImportantActions False
+    Me.Caption = "Follow-up Organizer " & FOValue(Rows, "version")
+    Panel "dash"
+    If c.ListCount > 0 Then
+        c.ListIndex = 0
+    Else
+        Me.Controls("detailTitle").Caption = "Information"
+        Me.Controls("detail").ForeColor = RGB(80, 80, 80)
+        Me.Controls("detail").Value = "No follow-ups are available in this view. Times use IST."
+    End If
+End Sub
+
+Private Sub SetImportantActions(ByVal enabled As Boolean)
+    Dim action As Variant
+    For Each action In Split("ImportantSave|ImportantEdit|ImportantArchive|ImportantDelete|ImportantRelink|ImportantConvert", "|")
+        SetActionEnabled CStr(action), enabled
+    Next action
+End Sub
+
+Private Sub SetFollowupActions(ByVal enabled As Boolean)
+    Dim action As Variant
+    For Each action In Split("Details|Conversation|Edit|Pause|Close|Later|Resolve|Link|Unlink|Remove|Export|Import|SnoozeHour|SnoozeTomorrow|SnoozeWorkday|Restore|Purge", "|")
+        SetActionEnabled CStr(action), enabled
+    Next action
+End Sub
+
+Private Sub ShowImportant()
+    Dim row As Object, c As Object, i As Long, query As String, include As Boolean
+    ViewName = "Important"
+    Set Rows = FOCall("important_list")
+    Set c = Me.Controls("list"): c.Clear
+    query = LCase$(Trim$(CStr(Me.Controls("search").Value)))
+    c.ColumnCount = 9
+    c.ColumnWidths = "0 pt;200 pt;85 pt;60 pt;115 pt;75 pt;70 pt;0 pt;0 pt"
+    Me.Controls("columns").Caption = "Subject | Category | Priority | Received (IST) | Review date | Status"
+    For Each row In Rows.SelectNodes("row")
+        include = True
+        If query <> "" Then include = include And InStr(1, LCase$(FOValue(row, "subject") & " " & FOValue(row, "category") & " " & FOValue(row, "tags") & " " & FOValue(row, "note")), query, vbBinaryCompare) > 0
+        If include Then
+            c.AddItem FOValue(row, "id"): i = c.ListCount - 1
+            c.List(i, 1) = FOValue(row, "subject")
+            c.List(i, 2) = FOValue(row, "category")
+            c.List(i, 3) = FOValue(row, "priority")
+            c.List(i, 4) = FOValue(row, "received_local")
+            c.List(i, 5) = FOValue(row, "review_date")
+            c.List(i, 6) = FOValue(row, "status")
+            c.List(i, 7) = FOValue(row, "entry")
+            c.List(i, 8) = FOValue(row, "store")
+        End If
+    Next row
+    Me.Controls("status").Caption = "Important Mail | " & CStr(c.ListCount) & " saved | " & FOValue(Rows, "review_due") & " review due"
+    Me.Controls("detailTitle").Caption = "Important Mail information"
+    SetFollowupActions False
+    SetImportantActions True
+    SetActionEnabled "Restore", False: SetActionEnabled "Purge", False
+    Panel "dash"
+    If c.ListCount > 0 Then c.ListIndex = 0 Else Me.Controls("detail").Value = "Select an Outlook email, then click Save selected mail."
+End Sub
+
+Private Sub SetCardCaption(ByVal actionName As String, ByVal caption As String)
+    Dim hook As cFOButton
+    For Each hook In Hooks
+        If hook.ActionName = actionName Then hook.Button.Caption = caption
+    Next hook
+End Sub
+
+Private Sub SetActionEnabled(ByVal actionName As String, ByVal isEnabled As Boolean)
+    Dim hook As cFOButton
+    For Each hook In Hooks
+        If hook.ActionName = actionName Then hook.Button.Enabled = isEnabled
+    Next hook
+End Sub
+
+Private Function SelectedIDs() As String
+    Dim c As Object, i As Long, value As String
+    Set c = Me.Controls("list")
+    If ViewName = "Conversation" Then
+        SelectedIDs = CurrentID
+        Exit Function
+    End If
+    For i = 0 To c.ListCount - 1
+        If c.Selected(i) Then
+            If value <> "" Then value = value & vbLf
+            value = value & CStr(c.List(i, 0))
+        End If
+    Next i
+    SelectedIDs = value
+End Function
+
+Public Sub SelectionChanged()
+    On Error Resume Next
+    If ViewName = "Important" Then
+        ShowImportantSummary
+    ElseIf ViewName <> "Conversation" Then
+        ShowSelectionSummary
+    End If
+    On Error GoTo 0
+End Sub
+
+Private Sub ShowImportantSummary()
+    Dim r As Object, id As String
+    id = SelectedID()
+    Set r = FOCall("important_get", FOXML("id", id))
+    Me.Controls("detailTitle").Caption = "Saved mail summary"
+    Me.Controls("detail").ForeColor = RGB(0, 0, 110)
+    Me.Controls("detail").Value = "Category: " & FOValue(r, "category") & "    Priority: " & FOValue(r, "priority") & _
+        "    Linked emails: " & FOValue(r, "link_count") & vbCrLf & _
+        "Tags: " & BlankAsDash(FOValue(r, "tags")) & "    Review: " & BlankAsDash(FOValue(r, "review_date")) & vbCrLf & _
+        "Folder: " & BlankAsDash(FOValue(r, "folder")) & vbCrLf & "Private note: " & BlankAsDash(FOValue(r, "note"))
+End Sub
+
+Private Sub ShowSelectionSummary()
+    Dim c As Object, result As Object, history As Object, row As Object
+    Dim id As String, status As String, text As String, historyCount As Long
+
+    Set c = Me.Controls("list")
+    If c.ListIndex < 0 Then Exit Sub
+    id = CStr(c.List(c.ListIndex, 0))
+    If Len(id) = 0 Then Exit Sub
+
+    Set result = FOCall("get", FOXML("id", id))
+    Me.Controls("detailTitle").Caption = "Selected follow-up summary"
+
+    If FOValue(result, "type") = "setup" Then
+        Me.Controls("detail").ForeColor = RGB(192, 96, 0)
+        Me.Controls("detail").Value = "Setup required" & vbCrLf & _
+            "Use Edit / Continue to configure recipients, reminder message and schedule."
+        Exit Sub
+    End If
+
+    status = FOValue(result, "status")
+    text = "Subject: " & FOValue(result, "subject") & vbCrLf & _
+           "Status: " & status & "    Priority: " & FOValue(result, "priority") & _
+           "    Deadline: " & BlankAsDash(FOValue(result, "deadline")) & vbCrLf & _
+           "Next follow-up: " & BlankAsDash(CStr(c.List(c.ListIndex, 4))) & _
+           "    Sent count: " & BlankAsDash(CStr(c.List(c.ListIndex, 6))) & vbCrLf & _
+           "Recipients: " & FOValue(result, "to")
+    If FOValue(result, "cc") <> "" Then text = text & "    Cc: " & FOValue(result, "cc")
+    text = text & vbCrLf & "Next action: " & BlankAsDash(FOValue(result, "note"))
+    If FOValue(result, "error") <> "" Then text = text & vbCrLf & "ERROR: " & FOValue(result, "error")
+
+    Set history = FOCall("history", FOXML("id", id))
+    For Each row In history.SelectNodes("row")
+        historyCount = historyCount + 1
+        If historyCount = 1 Then text = text & vbCrLf & "Latest history:"
+        text = text & vbCrLf & FOValue(row, "at") & " | " & FOValue(row, "action")
+        If FOValue(row, "detail") <> "" Then text = text & " | " & FOValue(row, "detail")
+        If historyCount = 3 Then Exit For
+    Next row
+
+    Select Case status
+        Case "Active": Me.Controls("detail").ForeColor = RGB(0, 110, 45)
+        Case "Review", "Needs action", "Pending send", "Draft ready": Me.Controls("detail").ForeColor = RGB(190, 90, 0)
+        Case "Paused", "Closed": Me.Controls("detail").ForeColor = RGB(90, 90, 90)
+        Case Else: Me.Controls("detail").ForeColor = RGB(0, 0, 110)
+    End Select
+    If FOValue(result, "error") <> "" Then Me.Controls("detail").ForeColor = RGB(180, 0, 0)
+    Me.Controls("detail").Value = text
+End Sub
+
+Private Function BlankAsDash(ByVal value As String) As String
+    If Trim$(value) = "" Then BlankAsDash = "-" Else BlankAsDash = value
+End Function
+
+Private Function SelectedID() As String
+    Dim c As Object
+    Set c = Me.Controls("list")
+    If c.ListIndex < 0 Then Err.Raise vbObjectError + 2111, , "Select a follow-up first."
+    If ViewName = "Conversation" Then
+        SelectedID = CurrentID
+    Else
+        SelectedID = c.List(c.ListIndex, 0)
+    End If
+End Function
+
+Private Sub EditCurrent()
+    Dim r As Object, key As Variant
+    CurrentID = SelectedID()
+    Set r = FOCall("get", FOXML("id", CurrentID))
+    If FOValue(r, "type") = "setup" Then
+        Set FOEditingMail = Application.Session.GetItemFromID(FOValue(r, "anchor_entry"), FOValue(r, "anchor_store"))
+        FOPending = False
+        EditMail
+        Exit Sub
+    End If
+    CurrentVersion = FOValue(r, "version")
+    InCompose = False
+    For Each key In Split("subject|to|cc|account|priority|unit|every|maximum|mode|message|later_message|note", "|")
+        SetEditorValue CStr(key), FOValue(r, CStr(key))
+    Next key
+    ' Continuing always proposes tomorrow, never silently resumes an overdue schedule.
+    SetDate "next", DateAdd("d", 1, Date)
+    Me.Controls("hour").Value = "09": Me.Controls("minute").Value = "30"
+    Me.Controls("use_due").Value = "No": Me.Controls("use_stop").Value = "No"
+    SetDate "due", DateAdd("d", 7, Date): SetDate "stopdate", DateAdd("m", 1, Date)
+    For Each key In Array("deadline", "stop_date")
+        If FOValue(r, CStr(key)) <> "" Then
+            Dim d As String, prefix As String
+            d = FOValue(r, CStr(key))
+            If CStr(key) = "deadline" Then prefix = "due" Else prefix = "stopdate"
+            SetDate prefix, DateSerial(CLng(Left$(d, 4)), CLng(Mid$(d, 6, 2)), CLng(Mid$(d, 9, 2)))
+            If prefix = "due" Then Me.Controls("use_due").Value = "Yes" Else Me.Controls("use_stop").Value = "Yes"
+        End If
+    Next key
+    Panel "edit"
+End Sub
+
+Private Sub SetEditorValue(ByVal key As String, ByVal value As String)
+    Dim c As Object, i As Long, found As Boolean
+    Set c = Me.Controls(key)
+    If TypeName(c) = "ComboBox" Then
+        For i = 0 To c.ListCount - 1
+            If CStr(c.List(i)) = value Then found = True: Exit For
+        Next i
+        If Not found Then c.AddItem value
+    End If
+    c.Value = value
+End Sub
+
+Private Sub SaveEditor()
+    Dim fields As String, key As Variant, result As Object
+    For Each key In Split("subject|to|cc|account|priority|unit|every|maximum|mode|message|later_message|note", "|")
+        fields = fields & FOXML(CStr(key), CStr(Me.Controls(CStr(key)).Value))
+    Next key
+    fields = fields & FOXML("next_at", DateText("next") & "T" & Me.Controls("hour").Value & ":" & Me.Controls("minute").Value & ":00+05:30")
+    If Me.Controls("use_due").Value = "Yes" Then fields = fields & FOXML("deadline", DateText("due"))
+    If Me.Controls("use_stop").Value = "Yes" Then fields = fields & FOXML("stop_date", DateText("stopdate"))
+    If CurrentID = "" Then
+        fields = fields & FOSnapshot(SourceMail, "a_")
+        If InCompose Then fields = fields & FOXML("a_pending", "1")
+        Set result = FOCall("enroll", fields)
+        FOSavedID = FOValue(result, "id")
+        If Not InCompose Then
+            FOPut SourceMail, "FOID", FOSavedID
+            SourceMail.Save
+            SearchAndApproveRelatedMail FOSavedID, SourceMail
+        End If
+    Else
+        fields = fields & FOXML("id", CurrentID) & FOXML("version", CurrentVersion)
+        Set result = FOCall("edit", fields)
+    End If
+    If InCompose Then Me.Hide Else ShowDashboard "Awaiting Reply"
+End Sub
+
+Private Sub SearchAndApproveRelatedMail(ByVal followupID As String, ByVal originalMail As Outlook.MailItem)
+    SearchAndApproveMailboxMail followupID, originalMail, False, ""
+End Sub
+
+Private Sub SearchAndApproveImportantMail(ByVal bookmarkID As String, ByVal originalMail As Outlook.MailItem, ByVal category As String)
+    SearchAndApproveMailboxMail bookmarkID, originalMail, True, category
+End Sub
+
+Private Sub SearchAndApproveMailboxMail(ByVal recordID As String, ByVal originalMail As Outlook.MailItem, ByVal importantMode As Boolean, ByVal importantCategory As String)
+    Dim ns As Outlook.NameSpace, mailbox As Outlook.Store
+    Dim inbox As Outlook.Folder, sentFolder As Outlook.Folder, linked As Object, rows As Object, row As Object
+    Dim folderCount As Long, messageCount As Long, candidateCount As Long
+    Dim linkedCount As Long, skippedCount As Long, errorCount As Long
+    Dim stopped As Boolean, stopReason As String, targetSubject As String
+    Dim key As String, summary As String, targetConversation As String
+
+    On Error GoTo Failed
+    targetSubject = NormalizeRelatedSubject(originalMail.Subject)
+    targetConversation = originalMail.ConversationID
+    If Len(targetSubject) = 0 And Len(targetConversation) = 0 Then Exit Sub
+
+    Set linked = CreateObject("Scripting.Dictionary")
+    linked.CompareMode = vbTextCompare
+    If importantMode Then
+        Set rows = FOCall("important_links", FOXML("id", recordID))
+    Else
+        Set rows = FOCall("messages", FOXML("id", recordID))
+    End If
+    For Each row In rows.SelectNodes("row")
+        key = FOValue(row, "store") & "|" & FOValue(row, "entry")
+        If Not linked.Exists(key) Then linked.Add key, True
+    Next row
+
+    Set ns = Application.Session
+    For Each mailbox In ns.Stores
+        If stopped Then Exit For
+        Set inbox = Nothing
+        On Error Resume Next
+        Set inbox = mailbox.GetDefaultFolder(olFolderInbox)
+        errorCount = errorCount + IIf(Err.Number <> 0, 1, 0)
+        Err.Clear
+        On Error GoTo Failed
+        If Not inbox Is Nothing Then
+            ScanRelatedFolder inbox, recordID, targetSubject, targetConversation, linked, importantMode, importantCategory, _
+                              folderCount, messageCount, candidateCount, _
+                              linkedCount, skippedCount, errorCount, _
+                              stopped, stopReason
+        End If
+        If stopped Then Exit For
+        Set sentFolder = Nothing
+        On Error Resume Next
+        Set sentFolder = mailbox.GetDefaultFolder(olFolderSentMail)
+        errorCount = errorCount + IIf(Err.Number <> 0, 1, 0)
+        Err.Clear
+        On Error GoTo Failed
+        If Not sentFolder Is Nothing Then
+            ScanRelatedFolder sentFolder, recordID, targetSubject, targetConversation, linked, importantMode, importantCategory, _
+                              folderCount, messageCount, candidateCount, _
+                              linkedCount, skippedCount, errorCount, _
+                              stopped, stopReason
+        End If
+    Next mailbox
+
+    summary = "Related-subject search completed." & vbCrLf & vbCrLf & _
+              "Candidates reviewed: " & CStr(candidateCount) & vbCrLf & _
+              "Emails linked: " & CStr(linkedCount) & vbCrLf & _
+              "Emails skipped: " & CStr(skippedCount) & vbCrLf & _
+              "Folders searched: " & CStr(folderCount) & vbCrLf & _
+              "Messages inspected: " & CStr(messageCount)
+    If errorCount > 0 Then summary = summary & vbCrLf & "Items/folders not readable: " & CStr(errorCount)
+    If stopped Then summary = summary & vbCrLf & vbCrLf & "Search stopped: " & stopReason
+    MsgBox summary, vbInformation, "Related mailbox mail"
+    Exit Sub
+
+Failed:
+    If importantMode Then
+        MsgBox "The bookmark was saved, but the related-mail search stopped." & vbCrLf & Err.Description, vbExclamation, "Related mailbox mail"
+    Else
+        MsgBox "The follow-up was saved, but the related-mail search stopped." & vbCrLf & Err.Description, vbExclamation, "Related mailbox mail"
+    End If
+End Sub
+
+Private Sub ScanRelatedFolder( _
+    ByVal sourceFolder As Outlook.Folder, _
+    ByVal followupID As String, _
+    ByVal targetSubject As String, _
+    ByVal targetConversation As String, _
+    ByVal linked As Object, _
+    ByVal importantMode As Boolean, _
+    ByVal importantCategory As String, _
+    ByRef folderCount As Long, _
+    ByRef messageCount As Long, _
+    ByRef candidateCount As Long, _
+    ByRef linkedCount As Long, _
+    ByRef skippedCount As Long, _
+    ByRef errorCount As Long, _
+    ByRef stopped As Boolean, _
+    ByRef stopReason As String)
+
+    Dim items As Outlook.Items, item As Object, mail As Outlook.MailItem
+    Dim child As Outlook.Folder, key As String, prompt As String
+    Dim answer As VbMsgBoxResult, result As Object, i As Long, linkedConfirmed As Boolean
+
+    If stopped Then Exit Sub
+    folderCount = folderCount + 1
+    If folderCount > RELATED_MAX_FOLDERS Then
+        stopped = True: stopReason = "folder safety limit reached"
+        Exit Sub
+    End If
+
+    On Error GoTo FolderFailed
+    Set items = sourceFolder.Items
+    items.Sort "[ReceivedTime]", True
+
+    For i = 1 To items.Count
+        If stopped Then Exit For
+        On Error GoTo ItemFailed
+        Set item = items.Item(i)
+        If TypeOf item Is Outlook.MailItem Then
+            messageCount = messageCount + 1
+            If messageCount > RELATED_MAX_MESSAGES Then
+                stopped = True: stopReason = "message safety limit reached"
+                Exit For
+            End If
+
+            Set mail = item
+            key = mail.Parent.StoreID & "|" & mail.EntryID
+            If Not linked.Exists(key) And FOProp(mail, "FOGenerated") = "" Then
+                If Not importantMode Then
+                    If FOProp(mail, "FOID") <> "" And FOProp(mail, "FOID") <> followupID Then GoTo NextItem
+                End If
+                If (targetConversation <> "" And mail.ConversationID = targetConversation) Or _
+                   (targetSubject <> "" And NormalizeRelatedSubject(mail.Subject) = targetSubject) Then
+                    candidateCount = candidateCount + 1
+                    If candidateCount > RELATED_MAX_CANDIDATES Then
+                        stopped = True: stopReason = "candidate approval limit reached"
+                        Exit For
+                    End If
+
+                    If importantMode Then
+                        prompt = "Link this email to the new Important Mail bookmark?"
+                    Else
+                        prompt = "Link this email to the new follow-up?"
+                    End If
+                    prompt = prompt & vbCrLf & vbCrLf & _
+                             "Subject: " & mail.Subject & vbCrLf & _
+                             "Received: " & Format$(mail.ReceivedTime, "dd mmm yyyy hh:nn") & " IST" & vbCrLf & _
+                             "Mailbox: " & mail.Parent.Store.DisplayName & vbCrLf & _
+                             "Folder: " & sourceFolder.FolderPath & vbCrLf & vbCrLf & _
+                             "Yes = Link | No = Skip | Cancel = Stop search"
+                    answer = MsgBox(prompt, vbYesNoCancel + vbQuestion, "Related Inbox mail")
+                    linkedConfirmed = False
+
+                    If answer = vbCancel Then
+                        stopped = True: stopReason = "cancelled by user"
+                        Exit For
+                    ElseIf answer = vbYes Then
+                        If importantMode Then
+                            Set result = FOCall("important_attach", FOXML("id", followupID) & FOSnapshot(mail, "a_"))
+                        Else
+                            Set result = FOCall("attach_related", FOXML("id", followupID) & FOSnapshot(mail, "a_"))
+                        End If
+                        linkedConfirmed = (LCase$(FOValue(result, "linked")) = "true")
+                        If linkedConfirmed Then
+                            linkedCount = linkedCount + 1
+                            If Not linked.Exists(key) Then linked.Add key, True
+                            If importantMode Then
+                                MarkImportantMail mail, importantCategory
+                            Else
+                                FOPut mail, "FOID", followupID
+                                mail.Save
+                            End If
+                        Else
+                            skippedCount = skippedCount + 1
+                        End If
+                    Else
+                        skippedCount = skippedCount + 1
+                    End If
+                End If
+            End If
+        End If
+
+NextItem:
+        Set mail = Nothing: Set item = Nothing
+        On Error GoTo FolderFailed
+    Next i
+
+    If Not stopped Then
+        For Each child In sourceFolder.Folders
+            ScanRelatedFolder child, followupID, targetSubject, targetConversation, linked, importantMode, importantCategory, _
+                              folderCount, messageCount, candidateCount, _
+                              linkedCount, skippedCount, errorCount, _
+                              stopped, stopReason
+            If stopped Then Exit For
+        Next child
+    End If
+    Exit Sub
+
+ItemFailed:
+    errorCount = errorCount + 1
+    Err.Clear
+    Resume NextItem
+
+FolderFailed:
+    errorCount = errorCount + 1
+    Err.Clear
+End Sub
+
+Private Function NormalizeRelatedSubject(ByVal value As String) As String
+    Dim text As String, changed As Boolean, ch As String, clean As String
+    Dim i As Long, prefix As Variant
+
+    text = LCase$(Trim$(value))
+    Do
+        changed = False
+        For Each prefix In Array("re:", "fw:", "fwd:")
+            If Left$(text, Len(CStr(prefix))) = CStr(prefix) Then
+                text = Trim$(Mid$(text, Len(CStr(prefix)) + 1))
+                changed = True
+                Exit For
+            End If
+        Next prefix
+    Loop While changed
+
+    For i = 1 To Len(text)
+        ch = Mid$(text, i, 1)
+        If ch Like "[a-z0-9]" Then
+            clean = clean & ch
+        ElseIf Right$(clean, 1) <> " " Then
+            clean = clean & " "
+        End If
+    Next i
+    NormalizeRelatedSubject = Trim$(clean)
+End Function
+
+Private Sub ShowSettings()
+    Dim r As Object, key As Variant, text As String
+    Set r = FOCall("settings")
+    For Each key In Split("start|end|morning|evening", "|")
+        Me.Controls("s_" & CStr(key)).Value = FOValue(r, CStr(key))
+    Next key
+    text = Replace(Replace(FOValue(r, "weekdays"), "[", ""), "]", "")
+    Me.Controls("s_weekdays").Value = Replace(text, " ", "")
+    text = Replace(Replace(Replace(FOValue(r, "holidays"), "[", ""), "]", ""), Chr$(34), "")
+    Me.Controls("s_holidays").Value = Replace(text, ", ", ";")
+    Me.Controls("s_auto").Value = (LCase$(FOValue(r, "auto_enabled")) = "true")
+    Me.Controls("s_catchup").Value = (LCase$(FOValue(r, "catchup_enabled")) = "true")
+    Me.Controls("s_catchup_hours").Value = FOValue(r, "catchup_hours")
+    Panel "settings"
+End Sub
+
+Private Function ImportantFields(Optional ByVal existing As Object = Nothing) As String
+    Dim categories As Object, category As String, priority As String, tags As String, note As String, reviewDate As String
+    Set categories = FOCall("important_categories")
+    If existing Is Nothing Then
+        category = "Quality": priority = "Normal"
+    Else
+        category = FOValue(existing, "category"): priority = FOValue(existing, "priority")
+        tags = FOValue(existing, "tags"): note = FOValue(existing, "note"): reviewDate = FOValue(existing, "review_date")
+    End If
+    category = Trim$(InputBox("Choose an existing category or type a new one:" & vbCrLf & _
+        Replace(FOValue(categories, "categories"), "|", ", "), "Important Mail category", category))
+    If category = "" Then Err.Raise vbObjectError + 2160, , "A category is required."
+    priority = Trim$(InputBox("Priority: Normal, High or Critical", "Important Mail priority", priority))
+    If priority = "" Then priority = "Normal"
+    tags = InputBox("Optional search tags, separated by semicolons:", "Important Mail tags", tags)
+    note = InputBox("Optional private note (stored only in Organizer):", "Important Mail note", note)
+    reviewDate = InputBox("Optional review date as YYYY-MM-DD:", "Important Mail review", reviewDate)
+    ImportantFields = FOXML("category", category) & FOXML("priority", priority) & FOXML("tags", tags) & _
+        FOXML("note", note) & FOXML("review_date", Trim$(reviewDate))
+End Function
+
+Private Sub MarkImportantMail(ByVal mail As Outlook.MailItem, ByVal category As String)
+    Dim value As String
+    value = mail.Categories
+    If InStr(1, value, "FO Important", vbTextCompare) = 0 Then
+        If value <> "" Then value = value & ", "
+        value = value & "FO Important"
+    End If
+    If InStr(1, value, "FO " & category, vbTextCompare) = 0 Then value = value & ", FO " & category
+    mail.Categories = value
+    mail.Save
+End Sub
+
+Private Function ImportantMailFromRow() As Outlook.MailItem
+    Dim c As Object
+    Set c = Me.Controls("list")
+    If c.ListIndex < 0 Then Err.Raise vbObjectError + 2161, , "Select an Important Mail bookmark."
+    Set ImportantMailFromRow = Application.Session.GetItemFromID(CStr(c.List(c.ListIndex, 7)), CStr(c.List(c.ListIndex, 8)))
+End Function
+
+Public Sub Act(ByVal action As String)
+    Dim result As Object, row As Object, key As Variant, fields As String, text As String
+    Dim c As Object, i As Long, id As String, mail As Outlook.MailItem
+    On Error GoTo Failed
+    Select Case action
+        Case "Sequence", "StepPrevious", "StepNext", "StepAdd", "StepRemove", "StepDone": SequenceAction action
+        Case "Filter": If ViewName = "Conversation" Then ShowDashboard "Today" Else ShowDashboard ViewName
+        Case "Stop": StopFollowupAutomation
+        Case "Today", "Awaiting Reply", "Review Replies", "Closed", "Removed", "Exceptions", "Overdue", "Due Today", "Important": ShowDashboard action
+        Case "CardOverdue": ShowDashboard "Overdue"
+        Case "CardDue": ShowDashboard "Due Today"
+        Case "CardAwaiting": ShowDashboard "Awaiting Reply"
+        Case "CardReview": ShowDashboard "Review Replies"
+        Case "CardExceptions": ShowDashboard "Exceptions"
+        Case "CardRemoved": ShowDashboard "Removed"
+        Case "Add": AddFollowup
+        Case "Settings": ShowSettings
+        Case "ImportantSave"
+            Set mail = FOSelected()
+            If mail Is Nothing Then Err.Raise vbObjectError + 2162, , "Select one existing Outlook email first."
+            fields = ImportantFields()
+            Set result = FOCall("important_add", fields & FOImportantSnapshot(mail, "m_"))
+            MarkImportantMail mail, FOValue(result, "category")
+            SearchAndApproveImportantMail FOValue(result, "id"), mail, FOValue(result, "category")
+            ShowDashboard "Important"
+        Case "ImportantEdit"
+            id = SelectedID()
+            Set result = FOCall("important_get", FOXML("id", id))
+            fields = ImportantFields(result)
+            Set result = FOCall("important_edit", FOXML("id", id) & FOXML("version", FOValue(result, "version")) & fields)
+            On Error Resume Next
+            Set mail = ImportantMailFromRow(): MarkImportantMail mail, FOValue(result, "category")
+            On Error GoTo Failed
+            ShowDashboard "Important"
+        Case "ImportantArchive", "ImportantDelete"
+            text = SelectedIDs()
+            If text = "" Then Err.Raise vbObjectError + 2163, , "Select at least one Important Mail bookmark."
+            If action = "ImportantDelete" Then
+                If MsgBox("Remove the selected bookmark(s)? Outlook emails will not be deleted.", vbYesNo + vbExclamation, "Remove Important Mail") <> vbYes Then Exit Sub
+                Set result = FOCall("important_delete", FOXML("ids", text))
+            Else
+                Set result = FOCall("important_archive", FOXML("ids", text))
+            End If
+            ShowDashboard "Important"
+        Case "ImportantRelink"
+            id = SelectedID(): Set mail = FOSelected()
+            If mail Is Nothing Then Err.Raise vbObjectError + 2164, , "Select the replacement Outlook email first."
+            Set result = FOCall("important_relink", FOXML("id", id) & FOImportantSnapshot(mail, "m_"))
+            MarkImportantMail mail, FOValue(result, "category")
+            ShowDashboard "Important"
+        Case "ImportantConvert"
+            Set mail = ImportantMailFromRow()
+            Set FOEditingMail = mail: FOPending = False
+            EditMail
+        Case "Contacts": ChooseContacts
+        Case "Appearance"
+            Set Appearance = FOCall("appearance")
+            For Each key In Split("dash_font|dash_size|dash_color|edit_font|edit_size|edit_color", "|")
+                Me.Controls("a_" & CStr(key)).Value = FOValue(Appearance, CStr(key))
+            Next key
+            Panel "appearance"
+        Case "SaveAppearance"
+            For Each key In Split("dash_font|dash_size|dash_color|edit_font|edit_size|edit_color", "|")
+                fields = fields & FOXML(CStr(key), CStr(Me.Controls("a_" & CStr(key)).Value))
+            Next key
+            Set Appearance = FOCall("save_appearance", fields)
+            ShowDashboard "Today"
+        Case "Unlink": BeginUnlink
+        Case "ConfirmUnlink": ConfirmUnlink
+        Case "CancelUnlink": ShowDashboard "Today"
+        Case "Save": SaveEditor
+        Case "CancelEdit": If InCompose Then Me.Hide Else ShowDashboard "Today"
+        Case "Daily": Me.Controls("every").Value = "1": Me.Controls("unit").Value = "working days"
+        Case "Urgent": Me.Controls("every").Value = "4": Me.Controls("unit").Value = "hours": Me.Controls("priority").Value = "High"
+        Case "Weekly": Me.Controls("every").Value = "1": Me.Controls("unit").Value = "weeks"
+        Case "Edit": EditCurrent
+        Case "SnoozeHour", "SnoozeTomorrow", "SnoozeWorkday"
+            id = SelectedID()
+            Select Case action
+                Case "SnoozeHour": text = "hour"
+                Case "SnoozeTomorrow": text = "tomorrow"
+                Case "SnoozeWorkday": text = "workday"
+            End Select
+            Set result = FOCall("snooze", FOXML("id", id) & FOXML("choice", text))
+            ShowDashboard "Today"
+        Case "Health"
+            Set result = FOCall("health")
+            Me.Controls("detailTitle").Caption = "Engine health"
+            Me.Controls("detail").ForeColor = RGB(0, 0, 110)
+            Me.Controls("detail").Value = "Version: " & FOValue(result, "version") & vbCrLf & "State: " & FOValue(result, "state") & vbCrLf & "Last successful scan (UTC): " & FOValue(result, "last_scan") & vbCrLf & "Stop reason: " & FOValue(result, "blocked") & vbCrLf & "Daily backup: " & FOValue(result, "backup_file") & " " & FOValue(result, "backup_error")
+        Case "Diagnostics"
+            Set result = FOCall("diagnostics")
+            Me.Controls("detailTitle").Caption = "Diagnostics"
+            Me.Controls("detail").ForeColor = RGB(0, 0, 110)
+            Me.Controls("detail").Value = "Diagnostics saved: " & FOValue(result, "path") & vbCrLf & "Includes health and event types only. Email content, recipients, credentials and raw logs are excluded."
+        Case "BackupNow"
+            Set result = FOCall("backup_now")
+            Me.Controls("detailTitle").Caption = "Verified backup created"
+            Me.Controls("detail").ForeColor = RGB(0, 110, 45)
+            Me.Controls("detail").Value = "File: " & FOValue(result, "file") & vbCrLf & _
+                "Follow-ups: " & FOValue(result, "reminders") & vbCrLf & _
+                "Verified: " & FOValue(result, "verified_at") & vbCrLf & _
+                "Location: " & FOValue(result, "path")
+        Case "BackupCheck"
+            Set result = FOCall("backup_check")
+            Me.Controls("detailTitle").Caption = "Latest backup verified"
+            Me.Controls("detail").ForeColor = RGB(0, 110, 45)
+            Me.Controls("detail").Value = "File: " & FOValue(result, "file") & vbCrLf & _
+                "Follow-ups: " & FOValue(result, "reminders") & vbCrLf & _
+                "Verified: " & FOValue(result, "verified_at") & vbCrLf & _
+                "Location: " & FOValue(result, "path")
+        Case "Details"
+            id = SelectedID()
+            Set result = FOCall("get", FOXML("id", id))
+            text = "Priority: " & FOValue(result, "priority") & " | Deadline: " & FOValue(result, "deadline") & vbCrLf & "Next action: " & FOValue(result, "note") & vbCrLf & "Review due: " & FOValue(result, "review_after") & vbCrLf & "Error: " & FOValue(result, "error") & vbCrLf
+            Set result = FOCall("history", FOXML("id", id))
+            For Each row In result.SelectNodes("row")
+                text = text & vbCrLf & FOValue(row, "at") & " | " & FOValue(row, "action") & " | " & FOValue(row, "detail")
+            Next row
+            Me.Controls("detailTitle").Caption = "Details / History"
+            Me.Controls("detail").ForeColor = RGB(0, 0, 110)
+            Me.Controls("detail").Value = text
+        Case "Conversation"
+            CurrentID = SelectedID()
+            Set Rows = FOCall("messages", FOXML("id", CurrentID))
+            Set c = Me.Controls("list"): c.Clear
+            c.ColumnCount = 5: c.ColumnWidths = "0 pt;245 pt;190 pt;110 pt;170 pt"
+            Me.Controls("columns").Caption = "Subject | Received (IST) | Action | Store"
+            For Each row In Rows.SelectNodes("row")
+                c.AddItem FOValue(row, "entry")
+                i = c.ListCount - 1
+                c.List(i, 1) = FOValue(row, "subject")
+                c.List(i, 2) = FOValue(row, "received")
+                c.List(i, 3) = "Open mail"
+                c.List(i, 4) = FOValue(row, "store")
+            Next row
+            ViewName = "Conversation"
+            Me.Controls("status").Caption = "Conversation: select a message and click Open mail / draft"
+            Me.Controls("detailTitle").Caption = "Conversation"
+            Me.Controls("detail").ForeColor = RGB(0, 0, 110)
+            Me.Controls("detail").Value = "Select a linked email above and click Open mail / draft. Conversation dates are shown newest first in IST."
+        Case "Open"
+            Set c = Me.Controls("list")
+            If c.ListIndex < 0 Then Err.Raise vbObjectError + 2112, , "Select a message or follow-up."
+            If ViewName = "Important" Then
+                On Error Resume Next
+                Set mail = ImportantMailFromRow()
+                If mail Is Nothing Then
+                    Err.Clear: On Error GoTo Failed
+                    Set result = FOCall("important_missing", FOXML("ids", SelectedID()))
+                    Err.Raise vbObjectError + 2165, , "The Outlook email could not be found. The bookmark is marked Missing; use Relink selected."
+                End If
+                On Error GoTo Failed
+            ElseIf ViewName = "Conversation" Then
+                Set mail = Application.Session.GetItemFromID(c.List(c.ListIndex, 0), c.List(c.ListIndex, 4))
+            Else
+                id = SelectedID()
+                Set result = FOCall("messages", FOXML("id", id))
+                ' The messages endpoint is newest-first; open the newest linked mail.
+                Set row = result.SelectSingleNode("row[1]")
+                If row Is Nothing Then Err.Raise vbObjectError + 2113, , "Original is not yet available in Sent Items."
+                Set mail = Application.Session.GetItemFromID(FOValue(row, "entry"), FOValue(row, "store"))
+            End If
+            mail.Display
+        Case "Pause", "Close", "Later", "Remove"
+            text = SelectedIDs()
+            If text = "" Then Err.Raise vbObjectError + 2123, , "Select at least one follow-up."
+            If action = "Remove" Then
+                If MsgBox("Remove the selected follow-up(s) from Organizer?" & vbCrLf & vbCrLf & _
+                          "No further reminders will be created. Outlook emails will not be deleted." & vbCrLf & _
+                          "Any existing Draft or Outbox item must still be checked manually.", _
+                          vbYesNo + vbExclamation, "Remove follow-up") <> vbYes Then Exit Sub
+            End If
+            Set result = FOCall("bulk", FOXML("ids", text) & FOXML("method", action))
+            ShowDashboard "Today"
+        Case "Restore"
+            text = SelectedIDs()
+            If text = "" Then Err.Raise vbObjectError + 2145, , "Select at least one removed follow-up."
+            If MsgBox("Restore the selected follow-up(s) as Paused?" & vbCrLf & _
+                      "Review their schedules and existing Draft/Outbox items before continuing.", _
+                      vbYesNo + vbQuestion, "Restore follow-up") = vbYes Then
+                Set result = FOCall("restore", FOXML("ids", text))
+                ShowDashboard "Removed"
+            End If
+        Case "Purge"
+            text = SelectedIDs()
+            If text = "" Then Err.Raise vbObjectError + 2146, , "Select at least one removed follow-up."
+            If InputBox("This permanently deletes the selected Organizer records, linked-message metadata and history." & _
+                        vbCrLf & "Outlook emails are not deleted." & vbCrLf & vbCrLf & _
+                        "Type PURGE to continue:", "Permanent purge") = "PURGE" Then
+                Set result = FOCall("purge", FOXML("ids", text) & FOXML("confirm", "PURGE"))
+                ShowDashboard "Removed"
+            End If
+        Case "Resolve"
+            id = SelectedID()
+            If MsgBox("Check Sent Items, Outbox and Drafts first. Remove any unsent organizer draft you no longer want. Mark this occurrence reviewed without retrying it?", vbYesNo + vbExclamation) = vbYes Then
+                Set result = FOCall("resolve", FOXML("id", id))
+                ShowDashboard "Today"
+            End If
+        Case "Link"
+            id = SelectedID()
+            Set mail = FOSelected()
+            If mail Is Nothing Then Err.Raise vbObjectError + 2114, , "Select one Outlook email to link."
+            Set result = FOCall("link", FOXML("id", id) & FOSnapshot(mail, "a_"))
+            FOPut mail, "FOID", id: mail.Save
+            MsgBox "Email linked. Review schedule before resuming.", vbInformation
+        Case "SaveSettings"
+            For Each key In Split("weekdays|start|end|morning|evening|holidays", "|")
+                fields = fields & FOXML(CStr(key), CStr(Me.Controls("s_" & CStr(key)).Value))
+            Next key
+            If Me.Controls("s_auto").Value Then
+                If MsgBox("Enable Auto-mode reminder sending after completing the Windows pilot checklist?", vbYesNo + vbQuestion) <> vbYes Then Exit Sub
+                fields = fields & FOXML("auto_enabled", "1")
+            End If
+            If Me.Controls("s_catchup").Value Then
+                fields = fields & FOXML("catchup_enabled", "1")
+            Else
+                fields = fields & FOXML("catchup_enabled", "0")
+            End If
+            fields = fields & FOXML("catchup_hours", CStr(Me.Controls("s_catchup_hours").Value))
+            Set result = FOCall("save_settings", fields)
+            MsgBox "Preferences saved.", vbInformation
+        Case "Resume"
+            If MsgBox("Review safety reason and pending send outcomes first. Resume eligible follow-ups?", vbYesNo + vbQuestion) = vbYes Then
+                Set result = FOCall("resume")
+                ShowDashboard "Today"
+            End If
+        Case "Folder": MonitorFollowupFolder
+        Case "Export": ExportFollowupsToExcel
+        Case "Import": ImportFollowupsFromExcel
+    End Select
+    Exit Sub
+Failed:
+    MsgBox Err.Description, vbExclamation, "Follow-up Organizer"
+End Sub
+
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+    If CloseMode = vbFormControlMenu Then
+        Cancel = True
+        Me.Hide
+    End If
+End Sub
+
+Private Sub UserForm_Terminate()
+    Dim h As cFOButton
+    If Not Hooks Is Nothing Then
+        For Each h In Hooks: h.DetachButton: Next h
+    End If
+    Set Hooks = Nothing
+    If Not ListHook Is Nothing Then ListHook.DetachList
+    Set ListHook = Nothing
+End Sub
+
+Private Sub BuildUnlink()
+    Label "unlinkTitle", "Unlink email", "unlink", 20, 60, 720
+    Label "unlinkHint", "If removing the reply source, select another linked email below. The Outlook email is kept.", "unlink", 20, 110, 720
+    Dim c As Object
+    Set c = Control("ListBox", "replacement", "unlink", 20, 150, 720, 230)
+    c.ColumnCount = 3: c.ColumnWidths = "0 pt;600 pt;0 pt"
+    Button "ConfirmUnlink", "Confirm unlink", "unlink", 20, 415, 160
+    Button "CancelUnlink", "Cancel", "unlink", 190, 415, 120
+End Sub
+
+Private Sub BeginUnlink()
+    Dim c As Object, r As Object, row As Object, i As Long
+    If ViewName <> "Conversation" Then Err.Raise vbObjectError + 2140, , "Open Conversation, select the email, then click Unlink email."
+    Set c = Me.Controls("list")
+    If c.ListIndex < 0 Then Err.Raise vbObjectError + 2141, , "Select the email to unlink."
+    UnlinkEntry = c.List(c.ListIndex, 0): UnlinkStore = c.List(c.ListIndex, 4)
+    Me.Controls("unlinkTitle").Caption = "Unlink: " & c.List(c.ListIndex, 1)
+    Set r = FOCall("get", FOXML("id", CurrentID))
+    CurrentVersion = FOValue(r, "version")
+    Set r = FOCall("messages", FOXML("id", CurrentID))
+    Set c = Me.Controls("replacement"): c.Clear
+    c.AddItem "": c.List(0, 1) = "No replacement (only when this is not the reply source)": c.List(0, 2) = ""
+    For Each row In r.SelectNodes("row")
+        If Not (FOValue(row, "entry") = UnlinkEntry And FOValue(row, "store") = UnlinkStore) Then
+            If FOValue(row, "generated") = "" And FOValue(row, "occ") = "" Then
+                c.AddItem FOValue(row, "entry"): i = c.ListCount - 1
+                c.List(i, 1) = FOValue(row, "subject") & " | " & FOValue(row, "received")
+                c.List(i, 2) = FOValue(row, "store")
+            End If
+        End If
+    Next row
+    c.ListIndex = 0
+    Panel "unlink"
+End Sub
+
+Private Sub ConfirmUnlink()
+    Dim c As Object, r As Object, fields As String
+    Set c = Me.Controls("replacement")
+    If c.ListIndex < 0 Then Exit Sub
+    fields = FOXML("id", CurrentID) & FOXML("version", CurrentVersion) & FOXML("entry", UnlinkEntry) & FOXML("store", UnlinkStore)
+    fields = fields & FOXML("replacement_entry", CStr(c.List(c.ListIndex, 0))) & FOXML("replacement_store", CStr(c.List(c.ListIndex, 2)))
+    Set r = FOCall("unlink", fields)
+    ShowDashboard "Today"
+    MsgBox "Email unlinked. The email remains in Outlook. Use Link email to include it again. Review state and schedule are unchanged.", vbInformation
+End Sub
+
+Private Sub BuildAppearance()
+    Dim p As Variant, k As Variant, c As Object, v As Variant, options As String, y As Single
+    y = 70
+    For Each p In Array("dash", "edit")
+        If p = "dash" Then
+            Label "appearanceDash", "Dashboard", "appearance", 20, y, 700
+        Else
+            Label "appearanceEdit", "Add / Edit Follow-up", "appearance", 20, y, 700
+        End If
+        y = y + 30
+        For Each k In Array("font", "size", "color")
+            Label "al_" & p & k, CStr(k), "appearance", 20, y, 130
+            Set c = Control("ComboBox", "a_" & p & "_" & k, "appearance", 160, y, 350, 24)
+            c.Style = fmStyleDropDownList
+            Select Case k
+                Case "font": options = "Tahoma|Calibri|Arial|Segoe UI"
+                Case "size": options = "8|9|10"
+                Case "color": options = "Black|Navy|Dark green|Maroon|Purple"
+            End Select
+            For Each v In Split(options, "|"): c.AddItem CStr(v): Next v
+            c.ListIndex = 0: y = y + 35
+        Next k
+        y = y + 15
+    Next p
+    Button "SaveAppearance", "Save appearance", "appearance", 20, 425, 160
+    Button "Settings", "Back to settings", "appearance", 190, 425, 160
+    Label "appearanceHint", "Applies to page text and input fields. Navigation and action buttons keep their readable defaults.", "appearance", 20, 475, 720
+End Sub
+
+Private Sub ApplyAppearance(ByVal panelName As String)
+    Dim c As Object, color As Long, name As String, size As Single
+    If Appearance Is Nothing Then Set Appearance = FOCall("appearance")
+    name = FOValue(Appearance, panelName & "_font")
+    size = CSng(FOValue(Appearance, panelName & "_size"))
+    Select Case FOValue(Appearance, panelName & "_color")
+        Case "Navy": color = RGB(0, 0, 128)
+        Case "Dark green": color = RGB(0, 90, 0)
+        Case "Maroon": color = RGB(128, 0, 0)
+        Case "Purple": color = RGB(90, 0, 110)
+        Case Else: color = RGB(0, 0, 0)
+    End Select
+    For Each c In Me.Controls
+        If c.Tag = panelName And TypeName(c) <> "CommandButton" Then
+            c.Font.Name = name: c.Font.Size = size: c.ForeColor = color
+        End If
+    Next c
+End Sub
+
+Private Sub ChooseContacts()
+    Dim dialog As Outlook.SelectNamesDialog, recipient As Outlook.Recipient
+    Dim key As Variant, value As Variant, address As String, toText As String, ccText As String
+    Dim seen As Object, r As Object, message As String
+    On Error GoTo Failed
+    Set r = FOCall("ui_busy", FOXML("busy", "1"))
+    Set dialog = Application.Session.GetSelectNamesDialog
+    dialog.NumberOfRecipientSelectors = olShowToCc
+    dialog.AllowMultipleSelection = True
+    dialog.ForceResolution = True
+    dialog.Caption = "Follow-up recipients - Contacts / Address Book"
+    For Each key In Array("to", "cc")
+        For Each value In Split(CStr(Me.Controls(CStr(key)).Value), ";")
+            If Trim$(CStr(value)) <> "" Then
+                Set recipient = dialog.Recipients.Add(Trim$(CStr(value)))
+                If key = "to" Then recipient.Type = olTo Else recipient.Type = olCC
+            End If
+        Next value
+    Next key
+    If dialog.Display Then
+        Set seen = CreateObject("Scripting.Dictionary"): seen.CompareMode = vbTextCompare
+        For Each recipient In dialog.Recipients
+            address = ContactSMTP(recipient)
+            If Not seen.Exists(address) Then
+                seen.Add address, True
+                If recipient.Type = olTo Then
+                    If toText <> "" Then toText = toText & ";"
+                    toText = toText & address
+                ElseIf recipient.Type = olCC Then
+                    If ccText <> "" Then ccText = ccText & ";"
+                    ccText = ccText & address
+                End If
+            End If
+        Next recipient
+        Me.Controls("to").Value = toText: Me.Controls("cc").Value = ccText
+    End If
+Done:
+    ' Preserve the outer before-send dialog lease when adding from compose.
+    On Error Resume Next
+    If Not InCompose Then Set r = FOCall("ui_busy", FOXML("busy", "0"))
+    On Error GoTo 0
+    If message <> "" Then MsgBox message, vbExclamation, "Outlook Contacts"
+    Exit Sub
+Failed:
+    message = Err.Description
+    Resume Done
+End Sub
+
+Private Function ContactSMTP(ByVal recipient As Outlook.Recipient) As String
+    Dim entry As Outlook.AddressEntry, ex As Outlook.ExchangeUser, dl As Outlook.ExchangeDistributionList
+    If Not recipient.Resolved Then Err.Raise vbObjectError + 2142, , "Resolve each recipient in the address book."
+    Set entry = recipient.AddressEntry
+    If entry.Type = "EX" Then
+        Set ex = entry.GetExchangeUser
+        If Not ex Is Nothing Then ContactSMTP = ex.PrimarySmtpAddress
+        If ContactSMTP = "" Then
+            Set dl = entry.GetExchangeDistributionList
+            If Not dl Is Nothing Then ContactSMTP = dl.PrimarySmtpAddress
+        End If
+    Else
+        ContactSMTP = entry.Address
+    End If
+    If InStr(1, ContactSMTP, "@") < 2 Then Err.Raise vbObjectError + 2143, , "No SMTP email address for " & recipient.Name & ". Choose an email-enabled contact."
+End Function
