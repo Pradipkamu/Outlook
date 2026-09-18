@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+/data/*
+!/data/README.txt
+*.sqlite3*
+*.db
+*.log
+token.txt
+STOP
+*.lock
+Backups/
+Diagnostics/
+MigratedLogs/
+*.xlsx
+.env
+.env.*
