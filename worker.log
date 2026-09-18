@@ -1,0 +1,843 @@
+2026-09-14T12:29:30+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-14T12:36:41+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-14T16:15:49+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 202, in run
+    self.pulse_vba()
+    ~~~~~~~~~~~~~~^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 72, in pulse_vba
+    self.pulse_task.ReminderSet=False
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 600, in __setattr__
+    self._oleobj_.Invoke(*(args + (value,) + defArgs))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-14T16:16:11+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-14T16:17:32+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-14T16:18:19+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 115, in scan_messages
+    m=snapshot(item,direction)
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 18, in snapshot
+    if item.Class!=43:return None
+       ^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-14T16:43:59+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-14T17:10:21+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 215, in run
+    if not self.app.Session.Offline:
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023170, 'The remote procedure call failed.', None, None)
+
+2026-09-14T21:29:12+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 198, in run
+    heartbeat(self.s,False,'Waiting for Classic Outlook to open')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 38, in heartbeat
+    os.replace(tmp,p)
+    ~~~~~~~~~~^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'D:\\FollowupOrganizer\\data\\heartbeat.tmp' -> 'D:\\FollowupOrganizer\\data\\heartbeat.json'
+
+2026-09-15T09:55:02+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 209, in run
+    heartbeat(self.s,False,'Scanning Outlook folders')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 38, in heartbeat
+    os.replace(tmp,p)
+    ~~~~~~~~~~^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'D:\\FollowupOrganizer\\data\\heartbeat.tmp' -> 'D:\\FollowupOrganizer\\data\\heartbeat.json'
+
+2026-09-15T12:08:57+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-15T12:41:46+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 198, in run
+    heartbeat(self.s,False,'Waiting for Classic Outlook to open')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 38, in heartbeat
+    os.replace(tmp,p)
+    ~~~~~~~~~~^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'D:\\FollowupOrganizer\\data\\heartbeat.tmp' -> 'D:\\FollowupOrganizer\\data\\heartbeat.json'
+
+2026-09-15T13:16:01+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 198, in run
+    heartbeat(self.s,False,'Waiting for Classic Outlook to open')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 38, in heartbeat
+    os.replace(tmp,p)
+    ~~~~~~~~~~^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'D:\\FollowupOrganizer\\data\\heartbeat.tmp' -> 'D:\\FollowupOrganizer\\data\\heartbeat.json'
+
+2026-09-16T04:12:59+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 202, in run
+    self.pulse_vba()
+    ~~~~~~~~~~~~~~^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 72, in pulse_vba
+    self.pulse_task.ReminderSet=False
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 600, in __setattr__
+    self._oleobj_.Invoke(*(args + (value,) + defArgs))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-16T04:20:20+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147417848, 'The object invoked has disconnected from its clients.', None, None)
+
+2026-09-16T07:17:25+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 202, in run
+    self.pulse_vba()
+    ~~~~~~~~~~~~~~^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 72, in pulse_vba
+    self.pulse_task.ReminderSet=False
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 600, in __setattr__
+    self._oleobj_.Invoke(*(args + (value,) + defArgs))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-16T07:53:07+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 202, in run
+    self.pulse_vba()
+    ~~~~~~~~~~~~~~^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 72, in pulse_vba
+    self.pulse_task.ReminderSet=False
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 600, in __setattr__
+    self._oleobj_.Invoke(*(args + (value,) + defArgs))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-16T10:36:21+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-16T11:30:28+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-16T11:31:31+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-16T11:31:58+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-16T11:38:53+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-16T11:49:43+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 98, in scan_messages
+    roots.append((self.ns.GetFolderFromID(f['entry'],f['store']),'0'))
+                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PRADIP~1.KAM\AppData\Local\Temp\gen_py\3.14\00062FFF-0000-0000-C000-000000000046x0x9x6\_NameSpace.py", line 95, in GetFolderFromID
+    ret = self._oleobj_.InvokeTypes(8456, LCID, 1, (9, 0), ((8, 1), (12, 17)),EntryIDFolder
+    	, EntryIDStore)
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-16T12:14:58+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-17T10:15:44+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-17T10:34:52+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-17T10:35:43+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 107, in scan_messages
+    collection=folder.Items.Restrict(filt)
+  File "C:\Users\PRADIP~1.KAM\AppData\Local\Temp\gen_py\3.14\00062FFF-0000-0000-C000-000000000046x0x9x6\_Items.py", line 92, in Restrict
+    ret = self._oleobj_.InvokeTypes(100, LCID, 1, (9, 0), ((8, 1),),Filter
+    	)
+pywintypes.com_error: (-2147023170, 'The remote procedure call failed.', None, None)
+
+2026-09-17T10:37:21+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-17T10:38:07+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-17T12:37:39+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T08:57:04+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    self.pulse_vba()
+            ~~~~~~^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 81, in scan_messages
+    roots=[]
+    
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T09:19:19+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T09:23:31+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T09:40:13+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T09:50:25+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T09:51:39+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T09:52:35+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 99, in scan_messages
+    roots.append((self.ns.GetFolderFromID(f['entry'],f['store']),'0'))
+                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PRADIP~1.KAM\AppData\Local\Temp\gen_py\3.14\00062FFF-0000-0000-C000-000000000046x0x9x6\_NameSpace.py", line 95, in GetFolderFromID
+    ret = self._oleobj_.InvokeTypes(8456, LCID, 1, (9, 0), ((8, 1), (12, 17)),EntryIDFolder
+    	, EntryIDStore)
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T09:56:13+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T09:57:23+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 207, in run
+    self.pulse_vba()
+    ~~~~~~~~~~~~~~^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 73, in pulse_vba
+    self.pulse_task.ReminderSet=False
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 600, in __setattr__
+    self._oleobj_.Invoke(*(args + (value,) + defArgs))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T10:14:07+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T10:21:32+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T10:22:48+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T12:52:16+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T13:08:05+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T13:11:02+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T13:34:46+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147417848, 'The object invoked has disconnected from its clients.', None, None)
+
+2026-09-18T14:23:04+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T14:26:55+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T14:54:33+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T15:37:24+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T15:44:50+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 99, in scan_messages
+    roots.append((self.ns.GetFolderFromID(f['entry'],f['store']),'0'))
+                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PRADIP~1.KAM\AppData\Local\Temp\gen_py\3.14\00062FFF-0000-0000-C000-000000000046x0x9x6\_NameSpace.py", line 95, in GetFolderFromID
+    ret = self._oleobj_.InvokeTypes(8456, LCID, 1, (9, 0), ((8, 1), (12, 17)),EntryIDFolder
+    	, EntryIDStore)
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T15:51:23+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T16:06:12+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T16:22:24+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T16:34:46+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    try:next(self.scan)
+        ~~~~^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 82, in scan_messages
+    for i in range(1,self.ns.Stores.Count+1):
+                     ^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
+2026-09-18T16:42:33+00:00
+Traceback (most recent call last):
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 212, in run
+    time.sleep(2);continue
+    ^^^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\engine\outlook_worker.py", line 83, in scan_messages
+    self.pulse_task=self.app.CreateItem(3)
+    ^^^^^^^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 590, in __getattr__
+    return self._ApplyTypes_(*args)
+           ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\FollowupOrganizer\.venv\Lib\site-packages\win32com\client\__init__.py", line 581, in _ApplyTypes_
+    self._oleobj_.InvokeTypes(dispid, 0, wFlags, retType, argTypes, *args),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pywintypes.com_error: (-2147023174, 'The RPC server is unavailable.', None, None)
+
