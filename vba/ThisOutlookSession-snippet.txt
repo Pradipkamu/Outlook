@@ -1,0 +1,7 @@
+' Merge into EXISTING procedures of the same name. Do not create duplicates.
+Private Sub Application_Startup()
+    FollowupStart
+End Sub
+
+' Do not add a second Application_ItemSend handler here.
+' cFOEvents handles sending and reminders through FollowupStart.
