@@ -317,6 +317,17 @@ Private Function DateText(ByVal key As String) As String
     DateText = Format$(value, "yyyy-mm-dd")
 End Function
 
+Private Sub SetStoredNextDateTime(ByVal value As String)
+    Dim savedUTC As Date, savedIST As Date
+    If Len(value) < 16 Then Err.Raise vbObjectError + 2112, , "The saved follow-up time is invalid."
+    savedUTC = DateSerial(CLng(Left$(value, 4)), CLng(Mid$(value, 6, 2)), CLng(Mid$(value, 9, 2))) + _
+               TimeSerial(CLng(Mid$(value, 12, 2)), CLng(Mid$(value, 15, 2)), 0)
+    savedIST = DateAdd("n", 330, savedUTC)
+    SetDate "next", savedIST
+    Me.Controls("hour").Value = Format$(savedIST, "hh")
+    Me.Controls("minute").Value = Format$(savedIST, "nn")
+End Sub
+
 Private Sub ResetEditor()
     Dim openedAt As Date
     openedAt = Now
@@ -570,6 +581,76 @@ Private Function SelectedID() As String
     End If
 End Function
 
+Private Function FindMailInFolder(ByVal sourceFolder As Outlook.Folder, ByVal filter As String, ByRef folderCount As Long) As Outlook.MailItem
+    Dim matches As Outlook.Items, item As Object, child As Outlook.Folder, found As Outlook.MailItem
+    folderCount = folderCount + 1
+    If folderCount > 300 Then Exit Function
+
+    On Error Resume Next
+    Set matches = sourceFolder.Items.Restrict(filter)
+    If Not matches Is Nothing Then
+        If matches.Count > 0 Then
+            Set item = matches.Item(1)
+            If TypeOf item Is Outlook.MailItem Then
+                Set FindMailInFolder = item
+                Exit Function
+            End If
+        End If
+    End If
+    Err.Clear
+
+    For Each child In sourceFolder.Folders
+        Set found = FindMailInFolder(child, filter, folderCount)
+        If Not found Is Nothing Then
+            Set FindMailInFolder = found
+            Exit Function
+        End If
+    Next child
+    On Error GoTo 0
+End Function
+
+Private Function FindMailByInternetID(ByVal internetID As String) As Outlook.MailItem
+    Dim outlookStore As Outlook.Store, root As Outlook.Folder, found As Outlook.MailItem
+    Dim filter As String, folderCount As Long
+    If Trim$(internetID) = "" Then Exit Function
+    filter = "@SQL=""http://schemas.microsoft.com/mapi/proptag/0x1035001F"" = '" & _
+             Replace(internetID, "'", "''") & "'"
+    For Each outlookStore In Application.Session.Stores
+        On Error Resume Next
+        Set root = outlookStore.GetRootFolder
+        Err.Clear
+        On Error GoTo 0
+        If Not root Is Nothing Then
+            Set found = FindMailInFolder(root, filter, folderCount)
+            If Not found Is Nothing Then
+                Set FindMailByInternetID = found
+                Exit Function
+            End If
+        End If
+        Set root = Nothing
+    Next outlookStore
+End Function
+
+Private Function ResolveLinkedMail(ByVal entryID As String, ByVal storeID As String, ByVal internetID As String, ByVal followupID As String) As Outlook.MailItem
+    Dim mail As Outlook.MailItem, result As Object, recovered As Boolean
+    On Error Resume Next
+    Set mail = Application.Session.GetItemFromID(entryID, storeID)
+    Err.Clear
+    On Error GoTo 0
+
+    If mail Is Nothing Then
+        Set mail = FindMailByInternetID(internetID)
+        recovered = Not mail Is Nothing
+    End If
+    If recovered And Trim$(internetID) <> "" And Trim$(followupID) <> "" Then
+        On Error Resume Next
+        Set result = FOCall("refresh_location", FOXML("id", followupID) & FOSnapshot(mail, "m_"))
+        Err.Clear
+        On Error GoTo 0
+    End If
+    Set ResolveLinkedMail = mail
+End Function
+
 Private Sub EditCurrent()
     Dim r As Object, key As Variant
     CurrentID = SelectedID()
@@ -585,9 +666,8 @@ Private Sub EditCurrent()
     For Each key In Split("subject|to|cc|account|priority|unit|every|maximum|mode|message|later_message|note", "|")
         SetEditorValue CStr(key), FOValue(r, CStr(key))
     Next key
-    ' Continuing always proposes tomorrow, never silently resumes an overdue schedule.
-    SetDate "next", DateAdd("d", 1, Date)
-    Me.Controls("hour").Value = "09": Me.Controls("minute").Value = "30"
+    ' Editing preserves the saved schedule. Only the user may change it.
+    SetStoredNextDateTime FOValue(r, "next_at")
     Me.Controls("use_due").Value = "No": Me.Controls("use_stop").Value = "No"
     SetDate "due", DateAdd("d", 7, Date): SetDate "stopdate", DateAdd("m", 1, Date)
     For Each key In Array("deadline", "stop_date")
@@ -1056,7 +1136,7 @@ Public Sub Act(ByVal action As String)
             CurrentID = SelectedID()
             Set Rows = FOCall("messages", FOXML("id", CurrentID))
             Set c = Me.Controls("list"): c.Clear
-            c.ColumnCount = 5: c.ColumnWidths = "0 pt;245 pt;190 pt;110 pt;170 pt"
+            c.ColumnCount = 6: c.ColumnWidths = "0 pt;245 pt;190 pt;110 pt;170 pt;0 pt"
             Me.Controls("columns").Caption = "Subject | Received (IST) | Action | Store"
             For Each row In Rows.SelectNodes("row")
                 c.AddItem FOValue(row, "entry")
@@ -1065,6 +1145,7 @@ Public Sub Act(ByVal action As String)
                 c.List(i, 2) = FOValue(row, "received")
                 c.List(i, 3) = "Open mail"
                 c.List(i, 4) = FOValue(row, "store")
+                c.List(i, 5) = FOValue(row, "mid")
             Next row
             ViewName = "Conversation"
             Me.Controls("status").Caption = "Conversation: select a message and click Open mail / draft"
@@ -1084,15 +1165,16 @@ Public Sub Act(ByVal action As String)
                 End If
                 On Error GoTo Failed
             ElseIf ViewName = "Conversation" Then
-                Set mail = Application.Session.GetItemFromID(c.List(c.ListIndex, 0), c.List(c.ListIndex, 4))
+                Set mail = ResolveLinkedMail(CStr(c.List(c.ListIndex, 0)), CStr(c.List(c.ListIndex, 4)), CStr(c.List(c.ListIndex, 5)), CurrentID)
             Else
                 id = SelectedID()
                 Set result = FOCall("messages", FOXML("id", id))
                 ' The messages endpoint is newest-first; open the newest linked mail.
                 Set row = result.SelectSingleNode("row[1]")
                 If row Is Nothing Then Err.Raise vbObjectError + 2113, , "Original is not yet available in Sent Items."
-                Set mail = Application.Session.GetItemFromID(FOValue(row, "entry"), FOValue(row, "store"))
+                Set mail = ResolveLinkedMail(FOValue(row, "entry"), FOValue(row, "store"), FOValue(row, "mid"), id)
             End If
+            If mail Is Nothing Then Err.Raise vbObjectError + 2166, , "The Outlook email could not be found by location or Internet Message ID. Select the current email in Outlook and use Link email to refresh it."
             mail.Display
         Case "Pause", "Close", "Later", "Remove"
             text = SelectedIDs()
