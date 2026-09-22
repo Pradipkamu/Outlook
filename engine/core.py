@@ -472,6 +472,24 @@ class Store:
                 self.log(fid,'Related email linked',m.get('subject',''))
             return dict(r,linked=added)
 
+    def refresh_location(self,fid,m):
+        """Refresh a moved message locator only after matching its stable Message-ID."""
+        with self.tx():
+            r=self.get(fid)
+            mid=str(m.get('mid','')).strip()
+            if not mid or not m.get('entry') or not m.get('store'):
+                raise ValueError('A stable Internet Message ID and current Outlook location are required.')
+            row=self.db.execute('SELECT fid,data FROM messages WHERE key=?',(mid,)).fetchone()
+            if not row or row[0]!=fid:
+                raise ValueError('The recovered Outlook email does not belong to this follow-up.')
+            old=json.loads(row[1])
+            self.link(fid,m)
+            anchor=r.get('anchor') or {}
+            if anchor.get('mid')==mid or (anchor.get('entry')==old.get('entry') and anchor.get('store')==old.get('store')):
+                r['anchor']=m;r['version']+=1;self.save(r)
+            self.log(fid,'Message location refreshed',m.get('subject',''))
+            return r
+
     def unlink(self,fid,entry,store,version,replacement_entry='',replacement_store=''):
         with self.tx():
             r=self.get(fid)
