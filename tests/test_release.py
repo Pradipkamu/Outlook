@@ -168,4 +168,21 @@ class ReleaseTests(unittest.TestCase):
         self.assertIn('If linkedConfirmed Then',confirmed)
         self.assertIn('MarkImportantMail mail, importantCategory',confirmed)
 
+    def test_v254_edit_preserves_saved_followup_time(self):
+        form=(Path(__file__).resolve().parents[1]/'vba'/'Organizer-code.txt').read_text(encoding='utf-8')
+        edit=form[form.index('Private Sub EditCurrent()'):form.index('Private Sub SetEditorValue')]
+        self.assertIn('SetStoredNextDateTime FOValue(r, "next_at")',edit)
+        self.assertNotIn('SetDate "next", DateAdd("d", 1, Date)',edit)
+        self.assertNotIn('Me.Controls("hour").Value = "09"',edit)
+
+    def test_v255_recovers_moved_mail_and_avoids_gen_py_cache(self):
+        root=Path(__file__).resolve().parents[1]
+        form=(root/'vba'/'Organizer-code.txt').read_text(encoding='utf-8')
+        worker=(root/'engine'/'outlook_worker.py').read_text(encoding='utf-8')
+        self.assertIn('FindMailByInternetID',form)
+        self.assertIn('FOCall("refresh_location"',form)
+        self.assertIn('FOValue(row, "mid")',form)
+        self.assertIn('self.app=active',worker)
+        self.assertNotIn('EnsureDispatch(active)',worker)
+
 if __name__=='__main__':unittest.main()
