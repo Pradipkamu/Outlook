@@ -1,4 +1,4 @@
-# Classic Outlook Follow-up Organizer 2.5.3
+# Classic Outlook Follow-up Organizer 2.5.5
 
 Python background engine and Outlook VBA interface for scheduled email follow-ups, conversation review, reminders and Excel configuration exchange.
 
@@ -17,6 +17,10 @@ Version 2.3.1 displays Details / History timestamps in India Standard Time (`UTC
 Version 2.3.2 applies the same IST display to the Conversation `Received` column, including older stored timestamps without an explicit offset. The Organizer window title now reads the running engine version instead of using a hard-coded caption.
 
 Version 2.5.3 retains the Important Mail register and approved mailbox linking from V2.5.2, and adds automatic recovery when Classic Outlook closes or restarts. Known RPC disconnects now wait and reconnect without creating a nuisance safety latch; uncertain sends and genuine worker failures remain protected.
+
+Version 2.5.4 preserves an existing follow-up's saved date and time when **Edit / Continue** is opened. The schedule changes only when the user edits those controls and saves.
+
+Version 2.5.5 recovers linked emails whose Outlook location changed after a move, synchronization or restart by using their stable Internet Message ID, then refreshes the stored locator. It also removes the worker's dependency on temporary `gen_py` wrapper files.
 
 Run automated tests from this folder:
 
