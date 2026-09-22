@@ -60,7 +60,10 @@ class OutlookWorker:
         except pythoncom.com_error as e:
             if e.hresult==-2147221021:return False  # MK_E_UNAVAILABLE: Outlook not open yet.
             raise
-        self.app=win32com.client.gencache.EnsureDispatch(active);self.ns=self.app.GetNamespace('MAPI')
+        # GetActiveObject already returns a usable dynamic dispatch object.
+        # EnsureDispatch depends on generated wrappers under the temporary
+        # gen_py cache, which Windows cleanup can remove while Outlook runs.
+        self.app=active;self.ns=self.app.GetNamespace('MAPI')
         self.pulse_task=None;self.next_pulse=0
         return True
 
