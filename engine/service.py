@@ -101,6 +101,9 @@ class Bridge:
         if action=='important_relink':
             message={k[2:]:v for k,v in f.items() if k.startswith('m_')}
             return xml_result(s.important_relink(f['id'],message))
+        if action=='refresh_location':
+            message={k[2:]:v for k,v in f.items() if k.startswith('m_')}
+            return xml_result(s.refresh_location(f['id'],message))
         if action=='snooze':return xml_result(s.snooze(f['id'],f['choice']))
         if action=='review_marker':
             if 'marker' in f:s.setmeta('review_marker',f['marker'])
