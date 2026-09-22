@@ -43,6 +43,15 @@ class OrganizerTests(unittest.TestCase):
     def test_identical_subject_different_thread_is_separate(self):
         self.enroll();self.anchor.update(entry='another',conv='thread2',mid='<other@example.com>')
         self.enroll();self.assertEqual(len(self.s.all()),2)
+    def test_refresh_location_uses_stable_message_id_and_updates_anchor(self):
+        r=self.enroll()
+        moved=dict(self.anchor,entry='moved-entry',store='store1',subject='Test moved')
+        updated=self.s.refresh_location(r['id'],moved)
+        self.assertEqual(updated['anchor']['entry'],'moved-entry')
+        linked=self.s.messages(r['id'])
+        self.assertTrue(any(x.get('mid')==self.anchor['mid'] and x.get('entry')=='moved-entry' for x in linked))
+        with self.assertRaises(ValueError):
+            self.s.refresh_location(r['id'],dict(moved,mid='<different@example.com>'))
     def test_reply_pauses_and_replay_does_not_increment_version(self):
         r=self.enroll()
         m=dict(entry='reply',store='store1',mid='<reply@example.com>',inreply='<original@example.com>',subject='Changed subject',received=stamp(self.now+dt.timedelta(minutes=10)),sent='0')
