@@ -646,3 +646,23 @@ class Store:
     def messages(self,fid):
         with self.lock:
             return [json.loads(r[0]) for r in self.db.execute('SELECT data FROM messages WHERE fid=?',(fid,))]
+
+    def latest_message(self,fid):
+        """Return the newest linked conversation email, including confirmed reminders."""
+        candidates=[m for m in self.messages(fid) if m.get('entry') and m.get('store')]
+        if not candidates:
+            raise ValueError('No linked Outlook email is available as the reminder reply source.')
+
+        def sort_key(message):
+            value=message.get('message_at') or message.get('received') or ''
+            try:
+                timestamp=parse(value).astimezone(UTC).timestamp()
+            except (TypeError,ValueError,OverflowError):
+                timestamp=float('-inf')
+            # Prefer a sent item when Outlook reports an identical timestamp.
+            return timestamp,1 if message.get('sent')=='1' else 0
+
+        latest=max(candidates,key=sort_key)
+        if sort_key(latest)[0]==float('-inf'):
+            raise ValueError('The latest linked Outlook email has no usable timestamp. Refresh its link before sending.')
+        return latest
