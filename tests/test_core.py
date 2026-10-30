@@ -34,7 +34,7 @@ class OrganizerTests(unittest.TestCase):
 
     def test_latest_message_uses_received_timestamp_for_older_records(self):
         r=self.enroll()
-        reply=dict(entry='older-schema-reply',store='store1',mid='<older-reply@example.com>',
+        reply=dict(entry='older-schema-reply',store='store1',mid='<older-reply@example.com>',conv='thread1',
                    received=stamp(self.now+dt.timedelta(hours=1)),sent='0')
         self.s.link(r['id'],reply)
         self.assertEqual(self.s.latest_message(r['id'])['entry'],'older-schema-reply')
