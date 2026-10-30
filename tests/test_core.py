@@ -39,6 +39,13 @@ class OrganizerTests(unittest.TestCase):
         self.s.link(r['id'],reply)
         self.assertEqual(self.s.latest_message(r['id'])['entry'],'older-schema-reply')
 
+    def test_latest_message_ignores_related_mail_from_another_conversation(self):
+        r=self.enroll()
+        related=dict(entry='related-mail',store='store1',mid='<related@example.com>',conv='different-thread',
+                     received=stamp(self.now+dt.timedelta(days=2)),message_at=stamp(self.now+dt.timedelta(days=2)),sent='0')
+        self.s.link(r['id'],related)
+        self.assertEqual(self.s.latest_message(r['id'])['entry'],'original')
+
     def test_work_window_holiday(self):
         prefs=dict(DEFAULTS,weekdays=[0,1,2,3,4],holidays=['2026-09-14'])
         d=dt.datetime(2026,9,11,19,tzinfo=IST)
