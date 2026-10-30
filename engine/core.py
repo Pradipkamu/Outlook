@@ -652,6 +652,12 @@ class Store:
         candidates=[m for m in self.messages(fid) if m.get('entry') and m.get('store')]
         if not candidates:
             raise ValueError('No linked Outlook email is available as the reminder reply source.')
+        anchor=self.get(fid).get('anchor') or {}
+        conversation=anchor.get('conv','')
+        same_conversation=[m for m in candidates if conversation and m.get('conv')==conversation]
+        if same_conversation:
+            # Related-mail links are for reference; only the enrolled conversation drives replies.
+            candidates=same_conversation
 
         def sort_key(message):
             value=message.get('message_at') or message.get('received') or ''
