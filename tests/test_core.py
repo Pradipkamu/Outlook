@@ -20,6 +20,32 @@ class OrganizerTests(unittest.TestCase):
     def tearDown(self):
         self.s.db.close();self.tmp.cleanup()
     def enroll(self):return self.s.enroll(self.fields,self.anchor,self.now)
+    def test_latest_message_selects_newest_conversation_email_including_sent_reminder(self):
+        r=self.enroll()
+        reply=dict(entry='customer-reply',store='store1',mid='<reply@example.com>',conv='thread1',
+                   subject='Customer reply',received=stamp(self.now+dt.timedelta(hours=1)),
+                   message_at=stamp(self.now+dt.timedelta(hours=1)),sent='0')
+        reminder=dict(entry='sent-reminder',store='store1',mid='<reminder@example.com>',conv='thread1',
+                      subject='Organizer reminder',received=stamp(self.now+dt.timedelta(hours=2)),
+                      message_at=stamp(self.now+dt.timedelta(hours=2)),sent='1',generated='1',occ='1')
+        self.s.link(r['id'],reply)
+        self.s.link(r['id'],reminder)
+        self.assertEqual(self.s.latest_message(r['id'])['entry'],'sent-reminder')
+
+    def test_latest_message_uses_received_timestamp_for_older_records(self):
+        r=self.enroll()
+        reply=dict(entry='older-schema-reply',store='store1',mid='<older-reply@example.com>',conv='thread1',
+                   received=stamp(self.now+dt.timedelta(hours=1)),sent='0')
+        self.s.link(r['id'],reply)
+        self.assertEqual(self.s.latest_message(r['id'])['entry'],'older-schema-reply')
+
+    def test_latest_message_ignores_related_mail_from_another_conversation(self):
+        r=self.enroll()
+        related=dict(entry='related-mail',store='store1',mid='<related@example.com>',conv='different-thread',
+                     received=stamp(self.now+dt.timedelta(days=2)),message_at=stamp(self.now+dt.timedelta(days=2)),sent='0')
+        self.s.link(r['id'],related)
+        self.assertEqual(self.s.latest_message(r['id'])['entry'],'original')
+
     def test_work_window_holiday(self):
         prefs=dict(DEFAULTS,weekdays=[0,1,2,3,4],holidays=['2026-09-14'])
         d=dt.datetime(2026,9,11,19,tzinfo=IST)

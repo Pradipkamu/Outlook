@@ -35,6 +35,8 @@ def snapshot(item,direction='0'):
     d['automatic']='1' if ('auto-submitted: auto-' in d.pop('headers','').lower() or 'automaticreply' in str(item.MessageClass).lower()) else ''
     try:d['received']=stamp(item.ReceivedTime)
     except Exception:d['received']=stamp(utcnow())
+    try:d['message_at']=stamp(item.SentOn if direction=='1' else item.ReceivedTime)
+    except Exception:d['message_at']=d['received']
     return d
 
 def mark(item,key,value):
@@ -151,7 +153,14 @@ class OutlookWorker:
                 if not row or row[0]!='Claimed':return
                 if s.blocked() or s.get(r['id'])['status']!='Active':
                     raise RuntimeError('Processing stopped before draft creation. Review occurrence before resuming.')
-            anchor=self.ns.GetItemFromID(r['anchor']['entry'],r['anchor']['store'])
+            # Continue the thread from its newest linked email, not the enrollment email.
+            latest=s.latest_message(r['id'])
+            try:
+                anchor=self.ns.GetItemFromID(latest['entry'],latest['store'])
+            except Exception as error:
+                raise RuntimeError('Latest linked conversation email is no longer at its saved Outlook location. Refresh its link before sending.') from error
+            if anchor.Class!=43:
+                raise RuntimeError('Latest linked conversation item is not an Outlook mail. Refresh its link before sending.')
             mail=anchor.ReplyAll()
             count=mail.Recipients.Count
             for i in range(count,0,-1):mail.Recipients.Remove(i)
